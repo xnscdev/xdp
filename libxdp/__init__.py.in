@@ -1,0 +1,5 @@
+__prefix = '@prefix@'
+__etc = __prefix + '/etc/xdp'
+__var = __prefix + '/var/xdp'
+
+from .repo import *
