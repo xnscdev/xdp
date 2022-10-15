@@ -3,4 +3,4 @@
 import libxdp
 
 if __name__ == '__main__':
-    libxdp.sync_local()
+    libxdp.main()

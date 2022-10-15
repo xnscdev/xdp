@@ -2,4 +2,6 @@ __prefix = '@prefix@'
 __etc = __prefix + '/etc/xdp'
 __var = __prefix + '/var/xdp'
 
+from .errors import *
+from .main import *
 from .repo import *
