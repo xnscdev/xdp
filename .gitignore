@@ -7,7 +7,7 @@ missing
 install-sh
 py-compile
 
-build
+/build
 .DS_Store
 *~
 ._*

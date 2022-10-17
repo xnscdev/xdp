@@ -99,7 +99,7 @@ def load_packages():
             package = Package(name, version, url, xbuild)
             __packages.append(package)
 
-def find_package(name, version_str=''):
+def find_package(name, version_str='', options=''):
     constraints = []
     data = version_str.split(',')
     for item in data:
@@ -124,4 +124,6 @@ def find_package(name, version_str=''):
 
     if not candidates:
         return None
-    return max(candidates)  # TODO: Set package.options here
+    package = max(candidates)
+    package.options = options.split(',')
+    return package

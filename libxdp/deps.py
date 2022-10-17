@@ -14,8 +14,13 @@ def process_deps(package, deps):
                 good = True
                 break
         if not good:
+            parts = d.split()
+            if len(parts) > 1:
+                options = parts[2]
+            else:
+                options = ''
             offset = d.find(next(filter(lambda v: not v.isalnum(), d)))
-            package = find_package(d[:offset], d[offset:])
+            package = find_package(d[:offset], d[offset:], options)
             if not package:
                 libxdp.error('Failed to resolve dependency: ' + d)
                 exit(1)
