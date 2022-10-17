@@ -8,6 +8,7 @@ def bad_usage():
 
 def install(names):
     libxdp.load_packages()
+    libxdp.load_options()
     packages = []
     error = False
     for name in names:

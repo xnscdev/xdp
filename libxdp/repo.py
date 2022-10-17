@@ -6,6 +6,8 @@ import packaging.version
 import pycurl
 
 __packages = []
+__default_options = []
+__options = {}
 
 class Package:
     def __init__(self, name, version, url, xbuild):
@@ -57,6 +59,17 @@ class GreaterVersionConstraint(VersionConstraint):
     def satisfies(v):
         return v >= self.min_version
 
+def load_options():
+    global __default_options
+    with open(libxdp.__etc + '/options') as f:
+        for line in f:
+            if not line.startswith('#'):
+                line = line.split()
+                if line[0] == '*':
+                    __default_options = line[1].split(',')
+                else:
+                    __options[line[0]] = line[1].split(',')
+
 def sync_local():
     with open(libxdp.__etc + '/repo') as f:
         packages = []
@@ -99,6 +112,15 @@ def load_packages():
             package = Package(name, version, url, xbuild)
             __packages.append(package)
 
+def consume_options(opts, options):
+    for o in options:
+        if o.startswith('-'):
+            o = o[1:]
+            if o in opts:
+                opts.remove(o)
+        else:
+            opts.add(o)
+
 def find_package(name, version_str='', options=''):
     constraints = []
     data = version_str.split(',')
@@ -125,5 +147,11 @@ def find_package(name, version_str='', options=''):
     if not candidates:
         return None
     package = max(candidates)
-    package.options = options.split(',')
+    opts = set(__default_options)
+    try:
+        consume_options(opts, __options[package.name])
+    except KeyError:
+        pass
+    consume_options(opts, options.split(','))
+    package.options = opts
     return package
