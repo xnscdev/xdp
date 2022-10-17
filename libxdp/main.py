@@ -20,7 +20,8 @@ def install(names):
         exit(1)
 
     for package in packages:
-        print(package.name, package.version)
+        libxdp.process_package(package)
+    libxdp.install_packages()
 
 def main():
     if len(sys.argv) == 1:

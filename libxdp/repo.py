@@ -13,6 +13,7 @@ class Package:
         self.version = packaging.version.parse(version)
         self.url = url
         self.xbuild = xbuild
+        self.options = []
 
     def __eq__(self, other):
         if isinstance(other, Package):
@@ -78,7 +79,7 @@ def sync_local():
                     c.close()
                 for p in bytes.getvalue().decode().splitlines():
                     name, version, url = p.split()
-                    xbuild = '%s/%s-%s.xbuild' % (repo, name, version)
+                    xbuild = '%s/%s-%s.xbuild' % (line, name, version)
                     package = Package(name, version, url, xbuild)
                     if package not in packages:
                         packages.append(package)
@@ -89,7 +90,7 @@ def sync_local():
         for package in packages:
             f.write('%s\t%s\t%s\t%s\n' % (package.name, str(package.version),
                                           package.url, package.xbuild))
-    print('Found ' + len(packages) + ' packages')
+    print('Found ' + str(len(packages)) + ' packages')
 
 def load_packages():
     with open(libxdp.__var + '/packages') as f:
@@ -100,15 +101,14 @@ def load_packages():
 
 def find_package(name, version_str=''):
     constraints = []
-    if version_str:
-        data = version_str.split(',')
-        for item in data:
-            if item.startswith('>='):
-                constraints.append(GreaterVersionConstraint(item[2:].strip()))
-            elif item.startswith('='):
-                constraints.append(EqualVersionConstraint(item[2:].strip()))
-            elif item.startswith('<='):
-                constraints.append(LessVersionConstraint(item[2:].strip()))
+    data = version_str.split(',')
+    for item in data:
+        if item.startswith('>='):
+            constraints.append(GreaterVersionConstraint(item[2:].strip()))
+        elif item.startswith('='):
+            constraints.append(EqualVersionConstraint(item[2:].strip()))
+        elif item.startswith('<='):
+            constraints.append(LessVersionConstraint(item[2:].strip()))
 
     candidates = []
     for package in __packages:
@@ -124,4 +124,4 @@ def find_package(name, version_str=''):
 
     if not candidates:
         return None
-    return max(candidates)
+    return max(candidates)  # TODO: Set package.options here

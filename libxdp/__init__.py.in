@@ -1,7 +1,10 @@
 __prefix = '@prefix@'
 __etc = __prefix + '/etc/xdp'
 __var = __prefix + '/var/xdp'
+__api = 1
 
+from .build import *
+from .deps import *
 from .errors import *
 from .main import *
 from .repo import *
