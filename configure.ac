@@ -5,6 +5,7 @@ AM_PATH_PYTHON([3])
 
 AX_PYTHON_MODULE([certifi], [true])
 AX_PYTHON_MODULE([colorama], [true])
+AX_PYTHON_MODULE([humanize], [true])
 AX_PYTHON_MODULE([packaging], [true])
 AX_PYTHON_MODULE([pycurl], [true])
 AX_PYTHON_MODULE([toml], [true])

@@ -16,6 +16,7 @@ class Package:
         self.url = url
         self.xbuild = xbuild
         self.options = []
+        self.build_script = ''
 
     def __eq__(self, other):
         if isinstance(other, Package):

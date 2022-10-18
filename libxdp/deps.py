@@ -27,6 +27,7 @@ def process_deps(package, deps):
             if not package:
                 libxdp.error('Failed to resolve dependency: ' + d)
                 exit(1)
+            libxdp.load_xbuild(package)
             __package_order.append(package)
 
 def install_packages():
