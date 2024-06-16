@@ -6,6 +6,7 @@ import packaging.version
 import pycurl
 
 __packages = []
+__installed_packages = []
 __default_options = []
 __options = {}
 
@@ -15,7 +16,9 @@ class Package:
         self.version = packaging.version.parse(version)
         self.url = url
         self.xbuild = xbuild
-        self.options = []
+        self.env_options = set()
+        self.required_options = set()
+        self.dep_map = {}
         self.build_script = ''
 
     def __eq__(self, other):
@@ -31,6 +34,12 @@ class Package:
                 return True
             return False
         return NotImplemented
+
+    def options(self):
+        return self.env_options.union(self.required_options)
+
+    def req_option_data(self):
+        return self.name, tuple(self.required_options)
 
 class VersionConstraint:
     def __init__(self):
@@ -113,8 +122,42 @@ def load_packages():
             package = Package(name, version, url, xbuild)
             __packages.append(package)
 
+def load_installed():
+    with open(libxdp.__var + '/installed') as f:
+        for line in f:
+            parts = line.split()
+            try:
+                options = parts[2].split(',')
+            except IndexError:
+                options = []
+            __installed_packages.append((parts[0], parts[1], options))
+
+def write_installed():
+    with open(libxdp.__var + '/installed', 'w') as f:
+        for p in __installed_packages:
+            f.write('%s\t%s\t%s\n' % (p[0], p[1], ','.join(p[2])))
+
+def update_installed(package):
+    for p in __installed_packages:
+        if p[0] == package.name:
+            p[1] = str(package.version)
+            p[2] = package.required_options
+            write_installed()
+            return
+    __installed_packages.append((package.name, package.version,
+                                 package.required_options))
+    write_installed()
+
+def package_installed(package):
+    for p in __installed_packages:
+        if p[0] == package.name and p[1] == str(package.version):
+            return set(package.required_options) <= set(p[2])
+    return False
+
 def consume_options(opts, options):
     for o in options:
+        if not o:
+            continue
         if o.startswith('-'):
             o = o[1:]
             if o in opts:
@@ -153,6 +196,8 @@ def find_package(name, version_str='', options=''):
         consume_options(opts, __options[package.name])
     except KeyError:
         pass
+    package.env_options = opts
+    opts = set()
     consume_options(opts, options.split(','))
-    package.options = opts
+    package.required_options = opts
     return package

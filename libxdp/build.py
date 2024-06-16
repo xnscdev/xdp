@@ -59,7 +59,7 @@ def load_xbuild(package):
                 deps_script = z.read('deps.py').decode('utf-8')
                 scope = {}
                 exec(deps_script, scope)
-                d = scope['deps'](package.options)
+                d = scope['deps'](package.options(), package.dep_map)
                 libxdp.process_deps(package, d)
             except KeyError:
                 pass
@@ -97,16 +97,17 @@ def install_package(package):
             exec(package.build_script, scope)
             libxdp.update_action('Building', pstr)
             try:
-                scope['build'](package.options)
+                scope['build'](package.options())
             except subprocess.CalledProcessError:
                 libxdp.error('Build process exited with non-zero status')
                 exit(1)
 
             libxdp.update_action('Installing', pstr)
             try:
-                scope['install']()
+                scope['install'](package.options())
             except subprocess.CalledProcessError:
                 libxdp.error('Install process exited with non-zero status')
                 exit(1)
 
+        libxdp.update_installed(package)
         libxdp.update_action('Finished', 'installing ' + pstr)
